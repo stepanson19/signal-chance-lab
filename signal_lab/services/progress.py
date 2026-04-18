@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import reverse
 
 from signal_lab.models import Lab, LabRun, PracticeAttempt, Topic, TopicProgress
@@ -5,6 +6,8 @@ from signal_lab.services.events import log_learning_event
 
 
 def recompute_topic_progress(session_key, topic):
+    if settings.READ_ONLY_DEMO:
+        return None
     attempts = PracticeAttempt.objects.filter(
         session_key=session_key,
         exercise__topic=topic,

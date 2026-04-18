@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -10,16 +11,18 @@ def build_review_session(session_key, topic_slug=None):
     snapshot = build_progress_snapshot(session_key)
     topic = _resolve_topic(snapshot=snapshot, topic_slug=topic_slug)
 
-    open_session = ReviewSession.objects.filter(
-        session_key=session_key,
-        topic=topic,
-        completed_at__isnull=True,
-    ).first()
-    if open_session is None:
-        open_session = ReviewSession.objects.create(
+    open_session = None
+    if not settings.READ_ONLY_DEMO:
+        open_session = ReviewSession.objects.filter(
             session_key=session_key,
             topic=topic,
-        )
+            completed_at__isnull=True,
+        ).first()
+        if open_session is None:
+            open_session = ReviewSession.objects.create(
+                session_key=session_key,
+                topic=topic,
+            )
 
     exercises = _pick_review_exercises(session_key, topic)
     return {
@@ -31,6 +34,13 @@ def build_review_session(session_key, topic_slug=None):
 
 
 def complete_review_session(*, review_session, correct_answers, total_answers):
+    if settings.READ_ONLY_DEMO:
+        return {
+            "mastery_delta": 0,
+            "topic": review_session.topic,
+            "correct_answers": correct_answers,
+            "total_answers": total_answers,
+        }
     previous_progress = recompute_topic_progress(
         review_session.session_key,
         review_session.topic,

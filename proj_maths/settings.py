@@ -12,6 +12,9 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY") or get_random_secret_key()
 
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+READ_ONLY_DEMO = os.getenv("READ_ONLY_DEMO", "").lower() == "true" or bool(
+    os.getenv("VERCEL")
+)
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -60,6 +63,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'proj_maths.wsgi.application'
+
+SESSION_ENGINE = (
+    "django.contrib.sessions.backends.signed_cookies"
+    if READ_ONLY_DEMO
+    else "django.contrib.sessions.backends.db"
+)
 
 DATABASES = {
     'default': {

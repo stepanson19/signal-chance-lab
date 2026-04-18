@@ -1,5 +1,8 @@
+import secrets
+
+from django.conf import settings
 from django.db.models import Count
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 
 from signal_lab.forms import (
@@ -17,6 +20,13 @@ from signal_lab.services.simulation import run_simulation
 
 
 def _get_session_key(request):
+    if settings.READ_ONLY_DEMO:
+        session_key = request.session.get("demo_session_key")
+        if not session_key:
+            session_key = secrets.token_hex(16)
+            request.session["demo_session_key"] = session_key
+            request.session.modified = True
+        return session_key
     if not request.session.session_key:
         request.session.create()
     return request.session.session_key
@@ -70,22 +80,23 @@ def lab_detail(request, slug):
             **experience["fixed_parameters"],
         }
         result = decorate_lab_result(run_simulation(lab.experiment_type, parameters))
-        LabRun.objects.create(
-            lab=lab,
-            session_key=session_key,
-            parameters_json=parameters,
-            observed_value=result["observed_value"],
-            expected_value=result["expected_value"],
-            deviation_value=result["deviation"],
-        )
-        log_learning_event(
-            session_key=session_key,
-            topic=lab.topic,
-            event_type=LearningEvent.EventType.LAB_RUN,
-            title=f"Эксперимент «{lab.title}» завершён",
-            details="Результат добавлен в учебную историю.",
-        )
-        recompute_topic_progress(session_key, lab.topic)
+        if not settings.READ_ONLY_DEMO:
+            LabRun.objects.create(
+                lab=lab,
+                session_key=session_key,
+                parameters_json=parameters,
+                observed_value=result["observed_value"],
+                expected_value=result["expected_value"],
+                deviation_value=result["deviation"],
+            )
+            log_learning_event(
+                session_key=session_key,
+                topic=lab.topic,
+                event_type=LearningEvent.EventType.LAB_RUN,
+                title=f"Эксперимент «{lab.title}» завершён",
+                details="Результат добавлен в учебную историю.",
+            )
+            recompute_topic_progress(session_key, lab.topic)
         next_step = _build_topic_next_step(session_key, lab.topic)
 
     context = {
@@ -130,28 +141,29 @@ def exercise_detail(request, slug):
         session_key = _get_session_key(request)
         answer = form.cleaned_data["answer"]
         is_correct = _check_exercise_answer(exercise, answer)
-        PracticeAttempt.objects.create(
-            exercise=exercise,
-            session_key=session_key,
-            submitted_answer=answer,
-            is_correct=is_correct,
-        )
-        log_learning_event(
-            session_key=session_key,
-            topic=exercise.topic,
-            event_type=(
-                LearningEvent.EventType.CORRECT_ANSWER
-                if is_correct
-                else LearningEvent.EventType.WRONG_ANSWER
-            ),
-            title=(
-                f"Верный ответ по теме {exercise.topic.title}"
-                if is_correct
-                else f"Ошибка в теме {exercise.topic.title}"
-            ),
-            details="Результат задачи сохранён в истории.",
-        )
-        recompute_topic_progress(session_key, exercise.topic)
+        if not settings.READ_ONLY_DEMO:
+            PracticeAttempt.objects.create(
+                exercise=exercise,
+                session_key=session_key,
+                submitted_answer=answer,
+                is_correct=is_correct,
+            )
+            log_learning_event(
+                session_key=session_key,
+                topic=exercise.topic,
+                event_type=(
+                    LearningEvent.EventType.CORRECT_ANSWER
+                    if is_correct
+                    else LearningEvent.EventType.WRONG_ANSWER
+                ),
+                title=(
+                    f"Верный ответ по теме {exercise.topic.title}"
+                    if is_correct
+                    else f"Ошибка в теме {exercise.topic.title}"
+                ),
+                details="Результат задачи сохранён в истории.",
+            )
+            recompute_topic_progress(session_key, exercise.topic)
         verdict = {
             "title": "Верно" if is_correct else "Пока мимо",
             "message": exercise.explanation if is_correct else exercise.hint,
@@ -213,11 +225,19 @@ def review_topic(request, slug):
     if request.method == "POST":
         total_answers = len(payload["exercises"])
         correct_answers = total_answers
-        summary = complete_review_session(
-            review_session=payload["review_session"],
-            correct_answers=correct_answers,
-            total_answers=total_answers,
-        )
+        if settings.READ_ONLY_DEMO:
+            summary = {
+                "mastery_delta": 0,
+                "topic": payload["topic"],
+                "correct_answers": correct_answers,
+                "total_answers": total_answers,
+            }
+        else:
+            summary = complete_review_session(
+                review_session=payload["review_session"],
+                correct_answers=correct_answers,
+                total_answers=total_answers,
+            )
     return render(
         request,
         "signal_lab/review_detail.html",
@@ -237,6 +257,8 @@ def content_manage(request):
 
 
 def topic_create(request):
+    if settings.READ_ONLY_DEMO and request.method == "POST":
+        return HttpResponse("Демо-режим не сохраняет изменения.", status=403)
     form = TopicForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         topic = form.save()
@@ -250,6 +272,8 @@ def topic_create(request):
 
 def topic_update(request, slug):
     topic = get_object_or_404(Topic, slug=slug)
+    if settings.READ_ONLY_DEMO and request.method == "POST":
+        return HttpResponse("Демо-режим не сохраняет изменения.", status=403)
     form = TopicForm(request.POST or None, instance=topic)
     if request.method == "POST" and form.is_valid():
         topic = form.save()
@@ -266,6 +290,8 @@ def topic_update(request, slug):
 
 
 def exercise_create(request):
+    if settings.READ_ONLY_DEMO and request.method == "POST":
+        return HttpResponse("Демо-режим не сохраняет изменения.", status=403)
     form = ExerciseForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         exercise = form.save()
@@ -279,6 +305,8 @@ def exercise_create(request):
 
 def exercise_update(request, slug):
     exercise = get_object_or_404(Exercise, slug=slug)
+    if settings.READ_ONLY_DEMO and request.method == "POST":
+        return HttpResponse("Демо-режим не сохраняет изменения.", status=403)
     form = ExerciseForm(request.POST or None, instance=exercise)
     if request.method == "POST" and form.is_valid():
         exercise = form.save()
