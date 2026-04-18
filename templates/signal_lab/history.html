@@ -1,0 +1,25 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}История — Signal & Chance Lab{% endblock %}
+{% block page-title %}История обучения{% endblock %}
+{% block page-lead %}Последовательность экспериментов, ошибок, исправлений и роста mastery.{% endblock %}
+
+{% block content %}
+<section class="stack-list">
+    {% for event in events %}
+        <article class="info-panel">
+            <p class="panel-meta">{{ event.topic.title }} · {{ event.created_at|date:"d.m.Y H:i" }}</p>
+            <h2>{{ event.title }}</h2>
+            <p>{{ event.details }}</p>
+            {% if event.delta %}
+                <p class="panel-meta">Изменение mastery: {{ event.delta }}</p>
+            {% endif %}
+        </article>
+    {% empty %}
+        <article class="info-panel">
+            <h2>История пока пуста</h2>
+            <p>Сначала запустите лабораторию или решите задачу, чтобы появилась учебная лента.</p>
+        </article>
+    {% endfor %}
+</section>
+{% endblock %}

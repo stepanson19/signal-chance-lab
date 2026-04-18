@@ -1,0 +1,48 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}Задачи — Signal & Chance Lab{% endblock %}
+{% block page-title %}Практические задачи{% endblock %}
+{% block page-lead %}Короткие задания с мгновенной обратной связью и объяснением.{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+    <form method="get" class="filter-panel">
+        <div>
+            <label class="form-label" for="exercise-topic">Тема</label>
+            <select class="form-select" id="exercise-topic" name="topic">
+                <option value="">Все темы</option>
+                {% for topic in topics %}
+                    <option value="{{ topic.slug }}" {% if selected_topic == topic.slug %}selected{% endif %}>{{ topic.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="form-label" for="exercise-difficulty">Сложность</label>
+            <select class="form-select" id="exercise-difficulty" name="difficulty">
+                <option value="">Любая</option>
+                {% for value, label in difficulty_choices %}
+                    <option value="{{ value }}" {% if selected_difficulty == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button class="btn btn-dark" type="submit">Показать</button>
+        </div>
+    </form>
+</section>
+<div class="triple-grid">
+    {% for exercise in exercises %}
+        <article class="info-panel">
+            <p class="panel-meta">{{ exercise.topic.title }} · {{ exercise.get_difficulty_display }}</p>
+            <h2>{{ exercise.title }}</h2>
+            <p>{{ exercise.statement }}</p>
+            <a href="{{ exercise.get_absolute_url }}" class="deep-link">Решить задачу</a>
+        </article>
+    {% empty %}
+        <article class="info-panel">
+            <h2>Под выбранный фильтр задач нет</h2>
+            <p>Попробуй изменить критерии и открыть полный каталог.</p>
+        </article>
+    {% endfor %}
+</div>
+{% endblock %}

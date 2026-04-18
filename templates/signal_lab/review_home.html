@@ -1,0 +1,33 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}Review Mode — Signal & Chance Lab{% endblock %}
+{% block page-title %}Review Mode{% endblock %}
+{% block page-lead %}Короткий цикл повторения для слабых тем и недавних ошибок.{% endblock %}
+
+{% block content %}
+<div class="detail-shell">
+    <section class="stack-panel">
+        <div class="info-panel accent-panel">
+            <h2>Главная тема для повторения</h2>
+            {% if snapshot.weakest_topic %}
+                <p class="mb-3">{{ snapshot.weakest_topic.title }}</p>
+                <a href="{% url 'signal_lab:review_topic' snapshot.weakest_topic.slug %}" class="btn btn-dark">Запустить review</a>
+            {% else %}
+                <p class="mb-0">Сначала накопите немного истории обучения.</p>
+            {% endif %}
+        </div>
+    </section>
+    <section class="stack-panel">
+        <div class="info-panel">
+            <h2>Последние сигналы</h2>
+            <ul class="mb-0">
+                {% for event in history_preview %}
+                    <li>{{ event.title }}</li>
+                {% empty %}
+                    <li>Пока нет событий для повторения.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+</div>
+{% endblock %}

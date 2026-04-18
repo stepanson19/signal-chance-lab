@@ -1,0 +1,39 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}Контент — Signal & Chance Lab{% endblock %}
+{% block page-title %}Управление контентом{% endblock %}
+{% block page-lead %}Создание и редактирование учебных тем и задач без захода в Django admin.{% endblock %}
+
+{% block content %}
+<div class="d-flex gap-3 flex-wrap mb-4">
+    <a href="{% url 'signal_lab:topic_create' %}" class="btn btn-dark">Новая тема</a>
+    <a href="{% url 'signal_lab:exercise_create' %}" class="btn btn-outline-dark">Новая задача</a>
+</div>
+
+<div class="detail-shell">
+    <section class="stack-panel">
+        <div class="info-panel">
+            <h2>Темы</h2>
+            <ul class="mb-0">
+                {% for topic in topics %}
+                    <li>
+                        <a href="{% url 'signal_lab:topic_update' topic.slug %}">{{ topic.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+    <section class="stack-panel">
+        <div class="info-panel">
+            <h2>Задачи</h2>
+            <ul class="mb-0">
+                {% for exercise in exercises %}
+                    <li>
+                        <a href="{% url 'signal_lab:exercise_update' exercise.slug %}">{{ exercise.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+</div>
+{% endblock %}

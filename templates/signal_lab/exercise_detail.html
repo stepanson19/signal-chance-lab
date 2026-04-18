@@ -1,0 +1,55 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}{{ exercise.title }} — Signal & Chance Lab{% endblock %}
+{% block page-title %}{{ exercise.title }}{% endblock %}
+{% block page-lead %}{{ exercise.statement }}{% endblock %}
+
+{% block content %}
+<div class="detail-shell">
+    <section class="stack-panel">
+        <form method="post" class="editor-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-dark">Проверить ответ</button>
+        </form>
+        <details class="answer-reveal">
+            <summary>Показать правильный ответ</summary>
+            <div class="answer-reveal-body">
+                <p class="answer-reveal-label">Эталонный ответ</p>
+                <strong class="answer-reveal-value">
+                    {% if exercise.answer_kind == "number" %}
+                        {{ exercise.correct_numeric_answer }}
+                    {% else %}
+                        {{ exercise.correct_text_answer }}
+                    {% endif %}
+                </strong>
+                <p class="mb-0">{{ exercise.explanation }}</p>
+            </div>
+        </details>
+    </section>
+    <section class="stack-panel">
+        <div class="info-panel subtle-panel">
+            <h2>Подсказка</h2>
+            <p class="mb-0">{{ exercise.hint }}</p>
+        </div>
+        {% if verdict %}
+            <div class="result-panel {% if verdict.is_correct %}success-panel{% else %}warning-panel{% endif %}">
+                <h2>{{ verdict.title }}</h2>
+                <p class="mb-0">{{ verdict.message }}</p>
+            </div>
+        {% endif %}
+        {% if next_step %}
+            <div class="info-panel mt-4 next-step-panel">
+                <h2>Следующий шаг</h2>
+                <p class="fw-bold next-step-title">{{ next_step.title }}</p>
+                <p class="next-step-reason">{{ next_step.reason }}</p>
+                {% if next_step.url %}
+                    <div class="next-step-actions">
+                        <a href="{{ next_step.url }}" class="btn btn-outline-dark">Перейти</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

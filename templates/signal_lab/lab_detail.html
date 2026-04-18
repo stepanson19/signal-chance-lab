@@ -1,0 +1,265 @@
+{% extends "base_page.html" %}
+{% load l10n %}
+
+{% block pagetitle %}{{ lab.title }} — Signal & Chance Lab{% endblock %}
+{% block page-title %}{{ lab.title }}{% endblock %}
+{% block page-lead %}{{ lab.summary }}{% endblock %}
+
+{% block content %}
+<div class="detail-shell" data-lab-experience>
+    <section class="stack-panel">
+        <p class="panel-meta">interactive lab</p>
+        <h2>Параметры симуляции</h2>
+        <p>{{ experience.story }}</p>
+        <div class="preset-strip">
+            {% for preset in experience.presets %}
+                <button
+                    type="button"
+                    class="preset-chip"
+                    data-preset-index="{{ forloop.counter0 }}"
+                >
+                    <strong>{{ preset.label }}</strong>
+                    <span>{{ preset.summary }}</span>
+                </button>
+            {% endfor %}
+        </div>
+        <form method="post" class="editor-form" data-lab-form>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="mb-3">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            {% for field in form %}
+                {% if field.name in form.required_fields %}
+                    <p>
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {{ field.errors }}
+                    </p>
+                {% endif %}
+            {% endfor %}
+            <div class="lab-actions">
+                <button type="button" class="btn btn-outline-dark" data-random-fill-trigger>
+                    Случайные параметры
+                </button>
+                <button type="submit" class="btn btn-dark">Запустить эксперимент</button>
+            </div>
+            <p class="form-feedback" data-lab-feedback>
+                Выберите пресет или нажмите на случайное заполнение, чтобы быстро собрать сценарий.
+            </p>
+        </form>
+        <div class="info-panel subtle-panel">
+            <h2>Что смотреть в ответе</h2>
+            <div class="insight-list">
+                {% for insight in experience.insights %}
+                    <div class="insight-card">
+                        <span>{{ forloop.counter }}</span>
+                        <p>{{ insight }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="info-panel">
+            <h2>Теория</h2>
+            <p class="mb-0">{{ lab.theory_hint }}</p>
+        </div>
+    </section>
+    <section class="stack-panel">
+        {% if result %}
+            <div class="result-panel accent-panel">
+                <p class="panel-meta">run summary</p>
+                <h2>Результат</h2>
+                <div class="metric-inline-grid">
+                    {% for metric in result.summary_metrics %}
+                        <div class="metric-inline-card">
+                            <span>{{ metric.label }}</span>
+                            <strong>{{ metric.value }}</strong>
+                        </div>
+                    {% endfor %}
+                </div>
+                <p><strong>Эксперимент:</strong> {{ result.observed_value }}</p>
+                <p><strong>Теория:</strong> {{ result.expected_value }}</p>
+                <p><strong>Отклонение:</strong> {{ result.deviation }}</p>
+                <p class="mb-0">{{ result.summary }}</p>
+            </div>
+            <div class="chart-grid">
+                <div class="info-panel">
+                    <h2>Сравнение</h2>
+                    <p>{{ experience.chart_notes.comparison }}</p>
+                    {% for item in result.comparison_bars %}
+                        <div class="comparison-row">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ item.label }}</span>
+                                <strong>{{ item.value }}</strong>
+                            </div>
+                            <div class="meter-track meter-track-tall" role="presentation">
+                                <div class="meter-fill meter-fill-warm" style="--ratio: {{ item.ratio|unlocalize }}"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="info-panel">
+                    <h2>Динамика</h2>
+                    <p>{{ experience.chart_notes.trend }}</p>
+                    {% if result.trend_chart %}
+                        <div class="trend-frame">
+                            <svg viewBox="0 0 100 100" class="trend-svg" aria-label="График динамики">
+                                <line x1="6" y1="90" x2="94" y2="90" class="trend-axis"></line>
+                                <line x1="6" y1="10" x2="6" y2="90" class="trend-axis"></line>
+                                <polyline points="{{ result.trend_chart.expected_points }}" class="trend-line trend-line-expected"></polyline>
+                                <polyline points="{{ result.trend_chart.observed_points }}" class="trend-line trend-line-observed"></polyline>
+                                {% for point in result.trend_chart.points %}
+                                    <circle
+                                        cx="{{ point.x|unlocalize }}"
+                                        cy="{{ point.observed_y|unlocalize }}"
+                                        r="1.5"
+                                        class="trend-point"
+                                    ></circle>
+                                {% endfor %}
+                            </svg>
+                        </div>
+                        <div class="trend-legend">
+                            <span><i class="legend-dot legend-dot-observed"></i> Наблюдаемое</span>
+                            <span><i class="legend-dot legend-dot-expected"></i> Теория</span>
+                        </div>
+                        <p class="chart-caption">
+                            Диапазон значений: {{ result.trend_chart.min_label }} — {{ result.trend_chart.max_label }}.
+                            Последняя точка показывает шаг {{ result.trend_chart.last_step }}.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="info-panel">
+                <h2>Распределение</h2>
+                <p>{{ experience.chart_notes.distribution }}</p>
+                {% if result.histogram_chart %}
+                    <div class="histogram-frame">
+                        <svg
+                            viewBox="{{ result.histogram_chart.view_box }}"
+                            class="histogram-svg"
+                            aria-label="Гистограмма распределения"
+                        >
+                            <line
+                                x1="4"
+                                y1="{{ result.histogram_chart.baseline_y|unlocalize }}"
+                                x2="{{ result.histogram_chart.width|unlocalize }}"
+                                y2="{{ result.histogram_chart.baseline_y|unlocalize }}"
+                                class="histogram-axis"
+                            ></line>
+                            {% for bar in result.histogram_chart.bars %}
+                                <rect
+                                    x="{{ bar.x|unlocalize }}"
+                                    y="{{ bar.y|unlocalize }}"
+                                    width="{{ bar.width|unlocalize }}"
+                                    height="{{ bar.height|unlocalize }}"
+                                    rx="2"
+                                    class="histogram-bar"
+                                ></rect>
+                            {% endfor %}
+                            {% for label in result.histogram_chart.labels %}
+                                <text
+                                    x="{{ label.x|unlocalize }}"
+                                    y="81"
+                                    text-anchor="middle"
+                                    class="histogram-label"
+                                >
+                                    {{ label.label }}
+                                </text>
+                            {% endfor %}
+                        </svg>
+                    </div>
+                {% endif %}
+                {% if result.dominant_bucket %}
+                    <p class="chart-caption">
+                        Пиковый исход: {{ result.dominant_bucket.label }} ({{ result.dominant_bucket.count }} наблюдений).
+                    </p>
+                {% endif %}
+                {% for bucket in result.distribution %}
+                    <div class="data-bar">
+                        <div class="d-flex justify-content-between">
+                            <span>{{ bucket.label }}</span>
+                            <span>{{ bucket.count }}</span>
+                        </div>
+                        <div class="meter-track" role="presentation">
+                            <div class="meter-fill" style="--ratio: {{ bucket.ratio|unlocalize }}"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="info-panel">
+                <h2>Что произойдет после запуска</h2>
+                <p>После запуска лаборатория построит три разных вида визуализации:</p>
+                <div class="insight-list">
+                    <div class="insight-card">
+                        <span>1</span>
+                        <p>Сравнение модели и фактического результата по ключевым метрикам.</p>
+                    </div>
+                    <div class="insight-card">
+                        <span>2</span>
+                        <p>График динамики, который показывает стабилизацию оценки по мере роста серии.</p>
+                    </div>
+                    <div class="insight-card">
+                        <span>3</span>
+                        <p>Распределение исходов, чтобы быстро увидеть доминирующие значения.</p>
+                    </div>
+                </div>
+                {% if experience.preview_histogram %}
+                    <p class="chart-caption">Превью гистограммы</p>
+                    <div class="histogram-frame histogram-frame-preview">
+                        <svg
+                            viewBox="{{ experience.preview_histogram.view_box }}"
+                            class="histogram-svg"
+                            aria-label="Превью гистограммы"
+                        >
+                            <line
+                                x1="4"
+                                y1="{{ experience.preview_histogram.baseline_y|unlocalize }}"
+                                x2="{{ experience.preview_histogram.width|unlocalize }}"
+                                y2="{{ experience.preview_histogram.baseline_y|unlocalize }}"
+                                class="histogram-axis"
+                            ></line>
+                            {% for bar in experience.preview_histogram.bars %}
+                                <rect
+                                    x="{{ bar.x|unlocalize }}"
+                                    y="{{ bar.y|unlocalize }}"
+                                    width="{{ bar.width|unlocalize }}"
+                                    height="{{ bar.height|unlocalize }}"
+                                    rx="2"
+                                    class="histogram-bar histogram-bar-preview"
+                                ></rect>
+                            {% endfor %}
+                            {% for label in experience.preview_histogram.labels %}
+                                <text
+                                    x="{{ label.x|unlocalize }}"
+                                    y="81"
+                                    text-anchor="middle"
+                                    class="histogram-label"
+                                >
+                                    {{ label.label }}
+                                </text>
+                            {% endfor %}
+                        </svg>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if next_step %}
+            <div class="info-panel mt-4 next-step-panel">
+                <h2>Следующий шаг</h2>
+                <p class="fw-bold next-step-title">{{ next_step.title }}</p>
+                <p class="next-step-reason">{{ next_step.reason }}</p>
+                {% if next_step.url %}
+                    <div class="next-step-actions">
+                        <a href="{{ next_step.url }}" class="btn btn-outline-dark">Перейти</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+{{ experience.random_fill|json_script:"lab-random-fill" }}
+{{ experience.presets|json_script:"lab-presets" }}
+{% endblock %}

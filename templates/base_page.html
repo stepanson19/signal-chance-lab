@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block pagetitle %}{% endblock %}</title>
+    {% load static %}
+    <link href="{% static 'bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{% static 'signal_lab.css' %}" rel="stylesheet">
+    <script src="{% static 'signal_lab.js' %}" defer></script>
+</head>
+<body class="lab-body">
+<main class="page-shell">
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+    <div class="container-xl">
+        <header class="topbar">
+            <a href="{% url 'signal_lab:home' %}" class="brand text-decoration-none">
+                <img src="{% static 'calculator.svg' %}" alt="Signal & Chance Lab" width="34" height="34"/>
+                <span class="brand-copy">
+                    <strong>Signal & Chance Lab</strong>
+                    <small>Вероятность и статистика в действии</small>
+                </span>
+            </a>
+            <nav class="topnav">
+                <a href="{% url 'signal_lab:lab_list' %}">Лаборатории</a>
+                <a href="{% url 'signal_lab:exercise_list' %}">Задачи</a>
+                <a href="{% url 'signal_lab:dashboard' %}">Дашборд</a>
+                <a href="{% url 'signal_lab:review_home' %}">Review</a>
+                <a href="{% url 'signal_lab:content_manage' %}">CRUD</a>
+            </nav>
+        </header>
+        <section class="hero-band reveal">
+            <div class="hero-copy">
+                <p class="eyebrow">Образовательный проект</p>
+                <h1 class="hero-title">{% block page-title %}{% endblock %}</h1>
+                <p class="hero-lead">{% block page-lead %}{% endblock %}</p>
+            </div>
+            <div class="hero-aside">
+                <div class="hero-orbit orbit-one"></div>
+                <div class="hero-orbit orbit-two"></div>
+                <div class="hero-badge">теория + симуляции + практика</div>
+            </div>
+        </section>
+        <div class="content-shell reveal">
+            {% block content %}{% endblock %}
+        </div>
+        <footer class="footer-line">Signal & Chance Lab · educational project · 2026</footer>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,99 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}Signal & Chance Lab{% endblock %}
+{% block page-title %}Signal & Chance Lab{% endblock %}
+{% block page-lead %}Учебная лаборатория по вероятности и статистике для первокурсников.{% endblock %}
+
+{% block content %}
+<section class="poster-grid mb-5">
+    <div class="poster-panel">
+        <p class="section-kicker">Signal & Chance Lab</p>
+        <h2>Исследуй случайность так, будто это интерактивная выставка, а не скучная таблица формул.</h2>
+        <p>Проект соединяет интуицию, короткую теорию, симуляции и практические задачи в одном ритме.</p>
+        <div class="d-flex gap-3 flex-wrap">
+            <a href="{% url 'signal_lab:lab_list' %}" class="btn btn-dark btn-lg">Запустить лабораторию</a>
+            <a href="{% url 'signal_lab:exercise_list' %}" class="btn btn-outline-dark btn-lg">Решать задачи</a>
+        </div>
+    </div>
+    <div class="metric-stack">
+        <div class="metric-panel">
+            <span>Точность</span>
+            <strong>{{ snapshot.accuracy }}%</strong>
+        </div>
+        <div class="metric-panel">
+            <span>Серия</span>
+            <strong>{{ snapshot.streak_length }}</strong>
+        </div>
+        <div class="metric-panel accent-panel">
+            <span>Следующая рекомендация</span>
+            <strong>
+                {% if snapshot.recommended_lab %}
+                    {{ snapshot.recommended_lab.title }}
+                {% else %}
+                    Любая стартовая лаборатория
+                {% endif %}
+            </strong>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="section-heading">
+        <p class="section-kicker">Почему это работает</p>
+        <h2>Каждая тема проходит через цикл: увидеть, проверить, объяснить, закрепить.</h2>
+    </div>
+    <div class="triple-grid">
+        <article class="info-panel">
+            <h3>Симулировать</h3>
+            <p>Запускай монету, кубик, биномиальные эксперименты и шумные выборки с управляемыми параметрами.</p>
+        </article>
+        <article class="info-panel">
+            <h3>Сравнивать</h3>
+            <p>Смотри, насколько эксперимент отклоняется от теории и почему это нормально при малой выборке.</p>
+        </article>
+        <article class="info-panel">
+            <h3>Закреплять</h3>
+            <p>Решай задачи и получай быстрый разбор, чтобы теория превращалась в навык, а не в конспект.</p>
+        </article>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="section-heading">
+        <p class="section-kicker">Избранные лаборатории</p>
+        <h2>Сильные сценарии для первой демонстрации проекта.</h2>
+    </div>
+    <div class="triple-grid">
+        {% for lab in featured_labs %}
+            <article class="info-panel">
+                <p class="panel-meta">{{ lab.topic.title }}</p>
+                <h3>{{ lab.title }}</h3>
+                <p>{{ lab.summary }}</p>
+                <a href="{{ lab.get_absolute_url }}" class="deep-link">Открыть эксперимент</a>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="section-heading">
+        <p class="section-kicker">Темы курса</p>
+        <h2>Теория, формула, типичная ошибка и связанный эксперимент для каждой темы.</h2>
+    </div>
+    <div class="triple-grid">
+        {% for topic in topics %}
+            <article class="info-panel">
+                <h3>{{ topic.title }}</h3>
+                <p>{{ topic.short_description }}</p>
+                <p class="panel-meta">{{ topic.lab_count }} лабораторий · {{ topic.exercise_count }} задач</p>
+                <a href="{{ topic.get_absolute_url }}" class="deep-link">Открыть тему</a>
+            </article>
+        {% empty %}
+            <article class="info-panel">
+                <h3>Контент скоро появится</h3>
+                <p>Сначала заполни базу командой сидирования.</p>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

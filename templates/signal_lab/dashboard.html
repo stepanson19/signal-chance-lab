@@ -1,0 +1,109 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}Дашборд — Signal & Chance Lab{% endblock %}
+{% block page-title %}Личный дашборд{% endblock %}
+{% block page-lead %}Ваш текущий прогресс по лабораториям и практическим задачам.{% endblock %}
+
+{% block content %}
+<div class="triple-grid">
+    <section class="metric-panel wide-panel">
+        <h2>Точность</h2>
+        <p class="display-6">{{ snapshot.accuracy }}%</p>
+        <p class="mb-0">{{ snapshot.correct_attempts }} верных из {{ snapshot.total_attempts }}</p>
+    </section>
+    <section class="metric-panel wide-panel">
+        <h2>Слабое место</h2>
+        <p class="display-6">
+            {% if snapshot.weakest_topic %}
+                {{ snapshot.weakest_topic.title }}
+            {% else %}
+                Пока нет данных
+            {% endif %}
+        </p>
+        <p class="mb-0">Серия верных ответов: {{ snapshot.streak_length }}</p>
+    </section>
+    <section class="metric-panel accent-panel wide-panel">
+        <h2>Рекомендация</h2>
+        {% if snapshot.recommendation %}
+            <p class="fw-bold">{{ snapshot.recommendation.title }}</p>
+            {% if snapshot.recommendation.url %}
+                <a href="{{ snapshot.recommendation.url }}" class="btn btn-dark">Перейти</a>
+            {% endif %}
+        {% else %}
+            <p class="mb-0">Сначала откройте любую лабораторию.</p>
+        {% endif %}
+    </section>
+</div>
+
+<section class="mt-5">
+    <div class="section-heading">
+        <p class="section-kicker">Почему это рекомендовано</p>
+        <h2>Система объясняет, какой именно сигнал в обучении привёл к следующему шагу.</h2>
+    </div>
+    <div class="detail-shell">
+        <section class="stack-panel">
+            <div class="info-panel">
+                {% if snapshot.recommendation %}
+                    <h2>{{ snapshot.recommendation.title }}</h2>
+                    <p>{{ snapshot.recommendation.reason }}</p>
+                    <p class="panel-meta">Тип шага: {{ snapshot.recommendation.target_kind }}</p>
+                {% else %}
+                    <h2>Пока не хватает данных</h2>
+                    <p>Сделайте несколько действий в лабораториях и задачах, чтобы построить маршрут.</p>
+                {% endif %}
+            </div>
+        </section>
+        <section class="stack-panel">
+            <div class="info-panel">
+                <h2>Review Mode</h2>
+                <p>Отдельный режим для слабых тем и повторения недавних ошибок.</p>
+                <a href="{% url 'signal_lab:review_home' %}" class="btn btn-outline-dark">Открыть Review Mode</a>
+            </div>
+        </section>
+    </div>
+</section>
+
+<section class="mt-5">
+    <div class="section-heading">
+        <p class="section-kicker">История</p>
+        <h2>Короткая временная линия последних учебных событий.</h2>
+    </div>
+    <div class="triple-grid">
+        {% for event in history_preview %}
+            <article class="info-panel">
+                <p class="panel-meta">{{ event.topic.title }}</p>
+                <h3>{{ event.title }}</h3>
+                <p>{{ event.details }}</p>
+            </article>
+        {% empty %}
+            <article class="info-panel">
+                <h3>История ещё не сформирована</h3>
+                <p>Сначала выполни несколько учебных действий.</p>
+            </article>
+        {% endfor %}
+    </div>
+    <div class="mt-3">
+        <a href="{% url 'signal_lab:history' %}" class="deep-link">Открыть полную историю</a>
+    </div>
+</section>
+
+<section class="mt-5">
+    <div class="section-heading">
+        <p class="section-kicker">Достижения</p>
+        <h2>Короткая мотивационная лента, чтобы студент видел прогресс, а не только ошибки.</h2>
+    </div>
+    <div class="triple-grid">
+        {% for achievement in snapshot.achievements %}
+            <article class="info-panel">
+                <h3>{{ achievement }}</h3>
+                <p>Достижение засчитано на основе текущих действий в лабораториях и практических задачах.</p>
+            </article>
+        {% empty %}
+            <article class="info-panel">
+                <h3>Пока без достижений</h3>
+                <p>Сделай первый запуск лаборатории или реши задачу, чтобы активировать прогресс.</p>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

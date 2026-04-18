@@ -1,0 +1,51 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}Лаборатории — Signal & Chance Lab{% endblock %}
+{% block page-title %}Лаборатории{% endblock %}
+{% block page-lead %}Каталог интерактивных экспериментов по вероятности и статистике.{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+    <form method="get" class="filter-panel">
+        <div>
+            <label class="form-label" for="lab-topic">Тема</label>
+            <select class="form-select" id="lab-topic" name="topic">
+                <option value="">Все темы</option>
+                {% for topic in topics %}
+                    <option value="{{ topic.slug }}" {% if selected_topic == topic.slug %}selected{% endif %}>{{ topic.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="form-label" for="lab-difficulty">Сложность</label>
+            <select class="form-select" id="lab-difficulty" name="difficulty">
+                <option value="">Любая</option>
+                {% for value, label in difficulty_choices %}
+                    <option value="{{ value }}" {% if selected_difficulty == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button class="btn btn-dark" type="submit">Показать</button>
+        </div>
+    </form>
+</section>
+<section>
+    <div class="triple-grid">
+        {% for lab in labs %}
+            <article class="info-panel">
+                <p class="panel-meta">{{ lab.topic.title }} · {{ lab.get_difficulty_display }}</p>
+                <h2>{{ lab.title }}</h2>
+                <p>{{ lab.summary }}</p>
+                <p class="panel-meta">~{{ lab.estimated_minutes }} минут</p>
+                <a href="{{ lab.get_absolute_url }}" class="deep-link">Запустить эксперимент</a>
+            </article>
+        {% empty %}
+            <article class="info-panel">
+                <h2>Ничего не найдено</h2>
+                <p>Попробуй снять фильтр или выбрать другую тему.</p>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

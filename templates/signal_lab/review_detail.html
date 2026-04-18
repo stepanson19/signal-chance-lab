@@ -1,0 +1,37 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}Review — {{ payload.topic.title }}{% endblock %}
+{% block page-title %}Review: {{ payload.topic.title }}{% endblock %}
+{% block page-lead %}Повторяем тему через короткий набор задач, связанных с недавними ошибками.{% endblock %}
+
+{% block content %}
+<div class="detail-shell">
+    <section class="stack-panel">
+        <div class="info-panel">
+            <h2>Задачи для повторения</h2>
+            <ul class="mb-4">
+                {% for exercise in payload.exercises %}
+                    <li>{{ exercise.title }}</li>
+                {% endfor %}
+            </ul>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">Завершить review</button>
+            </form>
+        </div>
+    </section>
+    <section class="stack-panel">
+        {% if summary %}
+            <div class="result-panel success-panel">
+                <h2>Review завершён</h2>
+                <p>Изменение mastery: {{ summary.mastery_delta }}</p>
+            </div>
+        {% else %}
+            <div class="info-panel subtle-panel">
+                <h2>Что делает review</h2>
+                <p>Режим повторения фокусируется на слабой теме и помогает быстро вернуть контроль над материалом.</p>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

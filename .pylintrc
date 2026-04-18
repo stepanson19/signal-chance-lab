@@ -1,0 +1,17 @@
+[MASTER]
+load-plugins = pylint_django
+django-settings-module = proj_maths.settings
+ignore-paths = ^signal_lab/migrations/.*$
+
+[MESSAGES CONTROL]
+disable =
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    import-outside-toplevel
+
+[FORMAT]
+max-line-length = 100
+
+[DESIGN]
+max-locals = 20

@@ -1,0 +1,4 @@
+Django==4.1.7
+python-dotenv==1.0.0
+pylint==3.3.9
+pylint-django==2.7.0

@@ -1,0 +1,37 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}{{ topic.title }} — Signal & Chance Lab{% endblock %}
+{% block page-title %}{{ topic.title }}{% endblock %}
+{% block page-lead %}{{ topic.short_description }}{% endblock %}
+
+{% block content %}
+<div class="detail-shell">
+    <section class="stack-panel">
+        <div class="info-panel">
+            <h2>Краткая теория</h2>
+            <p>{{ topic.theory_summary }}</p>
+            <p><strong>Интуиция:</strong> {{ topic.intuition_text }}</p>
+            <p><strong>Формула:</strong> {{ topic.formula_text }}</p>
+            <p class="mb-0"><strong>Типичная ошибка:</strong> {{ topic.common_mistake }}</p>
+        </div>
+    </section>
+    <aside class="stack-panel">
+        <div class="info-panel">
+            <h2>Лаборатории по теме</h2>
+            <ul class="mb-0">
+                {% for lab in topic.labs.all %}
+                    <li><a href="{{ lab.get_absolute_url }}">{{ lab.title }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="info-panel">
+            <h2>Задачи по теме</h2>
+            <ul class="mb-0">
+                {% for exercise in topic.exercises.all %}
+                    <li><a href="{{ exercise.get_absolute_url }}">{{ exercise.title }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </aside>
+</div>
+{% endblock %}

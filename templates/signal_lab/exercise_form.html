@@ -1,0 +1,16 @@
+{% extends "base_page.html" %}
+
+{% block pagetitle %}{{ form_title }} — Signal & Chance Lab{% endblock %}
+{% block page-title %}{{ form_title }}{% endblock %}
+{% block page-lead %}Создание или редактирование задачи с контролем правильного ответа.{% endblock %}
+
+{% block content %}
+<form method="post" class="border rounded-3 p-4">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="d-flex gap-3 flex-wrap">
+        <button type="submit" class="btn btn-dark">Сохранить задачу</button>
+        <a href="{% url 'signal_lab:content_manage' %}" class="btn btn-outline-dark">Назад</a>
+    </div>
+</form>
+{% endblock %}
