@@ -1,0 +1,65 @@
+{
+  "raw": [
+    {
+      "split": "train",
+      "rows": 10713,
+      "columns": [
+        "text",
+        "label",
+        "id"
+      ],
+      "missing_text": 0,
+      "missing_label": 0,
+      "exact_duplicate_rows": 0,
+      "duplicate_text_rows": 0,
+      "label_counts": {
+        "neutral": 4273,
+        "negative": 2638,
+        "positive": 1931,
+        "skip": 1474,
+        "speech": 397
+      }
+    },
+    {
+      "split": "test",
+      "rows": 2679,
+      "columns": [
+        "text",
+        "label",
+        "id"
+      ],
+      "missing_text": 0,
+      "missing_label": 0,
+      "exact_duplicate_rows": 0,
+      "duplicate_text_rows": 0,
+      "label_counts": {
+        "neutral": 1068,
+        "negative": 660,
+        "positive": 483,
+        "skip": 369,
+        "speech": 99
+      }
+    }
+  ],
+  "raw_exact_text_overlap_count": 0,
+  "filtered": {
+    "train_rows": 8842,
+    "test_rows": 2211,
+    "train_label_counts": {
+      "neutral": 4273,
+      "negative": 2638,
+      "positive": 1931
+    },
+    "test_label_counts": {
+      "neutral": 1068,
+      "negative": 660,
+      "positive": 483
+    },
+    "empty_processed_train_removed": 0,
+    "empty_processed_test_removed": 0,
+    "normalized_text_overlap_count": 20,
+    "train_exact_duplicate_rows_retained": 0,
+    "test_exact_duplicate_rows_retained": 0,
+    "training_rows_after_overlap_exclusion": 8788
+  }
+}

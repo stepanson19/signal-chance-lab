@@ -1,0 +1,2 @@
+01472b304dc2fb8af177055809c38691abdc3df678c4b94be41a390ea42bf84e  rosnou_sentiment/data/rusentitweet_train.csv
+21c4868f773736b7e574d7dd849a77e789ddd6bbc0c690057ed8cfc5c129e7a6  rosnou_sentiment/data/rusentitweet_test.csv

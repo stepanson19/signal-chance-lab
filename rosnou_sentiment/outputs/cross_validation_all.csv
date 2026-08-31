@@ -1,0 +1,19 @@
+model,representation,parameters,mean_macro_f1,std_macro_f1,rank
+LinearSVC,char_wb_3_5,"{""clf__C"": 0.5}",0.653290,0.002255,1
+LinearSVC,char_wb_3_5,"{""clf__C"": 1.0}",0.650615,0.004684,2
+LinearSVC,char_wb_3_5,"{""clf__C"": 2.0}",0.644076,0.006424,3
+LogisticRegression,char_wb_3_5,"{""clf__C"": 2.0}",0.639961,0.003608,1
+LogisticRegression,char_wb_3_5,"{""clf__C"": 1.0}",0.606293,0.002705,2
+LogisticRegression,char_wb_3_5,"{""clf__C"": 0.5}",0.557464,0.003288,3
+MultinomialNB,char_wb_3_5,"{""clf__alpha"": 0.1}",0.645432,0.005485,1
+MultinomialNB,char_wb_3_5,"{""clf__alpha"": 0.5}",0.586164,0.005284,2
+MultinomialNB,char_wb_3_5,"{""clf__alpha"": 1.0}",0.493083,0.010868,3
+LinearSVC,word_1_2,"{""clf__C"": 0.5}",0.565288,0.007157,1
+LinearSVC,word_1_2,"{""clf__C"": 1.0}",0.559617,0.007003,2
+LinearSVC,word_1_2,"{""clf__C"": 2.0}",0.553591,0.008955,3
+LogisticRegression,word_1_2,"{""clf__C"": 2.0}",0.558841,0.006032,1
+LogisticRegression,word_1_2,"{""clf__C"": 1.0}",0.536368,0.008522,2
+LogisticRegression,word_1_2,"{""clf__C"": 0.5}",0.492783,0.005613,3
+MultinomialNB,word_1_2,"{""clf__alpha"": 0.1}",0.556650,0.011278,1
+MultinomialNB,word_1_2,"{""clf__alpha"": 0.5}",0.537236,0.013164,2
+MultinomialNB,word_1_2,"{""clf__alpha"": 1.0}",0.493055,0.009846,3

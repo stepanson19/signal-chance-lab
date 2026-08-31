@@ -1,0 +1,8 @@
+model,representation,cv_macro_f1_mean,cv_macro_f1_std,best_parameter,test_accuracy,test_macro_precision,test_macro_recall,test_macro_f1
+MostFrequent,без признаков,,,—,0.483039,0.161013,0.333333,0.217139
+MultinomialNB,word_1_2,0.556650,0.011278,alpha=0.1,0.606061,0.605561,0.553289,0.566800
+LogisticRegression,word_1_2,0.558841,0.006032,C=2.0,0.629579,0.646752,0.565754,0.582880
+LinearSVC,word_1_2,0.565288,0.007157,C=0.5,0.621438,0.623973,0.568314,0.582932
+MultinomialNB,char_wb_3_5,0.645432,0.005485,alpha=0.1,0.659882,0.657053,0.625298,0.636868
+LogisticRegression,char_wb_3_5,0.639961,0.003608,C=2.0,0.689281,0.714105,0.633402,0.654779
+LinearSVC,char_wb_3_5,0.653290,0.002255,C=0.5,0.686115,0.691454,0.643979,0.659665
