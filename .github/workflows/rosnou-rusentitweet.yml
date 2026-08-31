@@ -1,0 +1,57 @@
+name: RosNOU RuSentiTweet experiment
+
+on:
+  push:
+    branches:
+      - tmp/rosnou-rusentitweet-20260831
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  experiment:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout temporary branch
+        uses: actions/checkout@v4
+        with:
+          ref: tmp/rosnou-rusentitweet-20260831
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pandas==2.3.2 numpy==2.2.6 scikit-learn==1.7.1 matplotlib==3.10.5 joblib==1.5.2
+
+      - name: Run experiment
+        run: python rosnou_sentiment/sentiment_experiment.py
+
+      - name: Record environment
+        run: |
+          python -m pip freeze > rosnou_sentiment/outputs/environment_freeze.txt
+          sha256sum rosnou_sentiment/data/rusentitweet_train.csv rosnou_sentiment/data/rusentitweet_test.csv > rosnou_sentiment/outputs/dataset_sha256.txt
+
+      - name: Commit data and calculated outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add rosnou_sentiment/data rosnou_sentiment/outputs
+          git commit -m "Add calculated RuSentiTweet results [skip ci]" || exit 0
+          git push origin HEAD:tmp/rosnou-rusentitweet-20260831
+
+      - name: Upload complete experiment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rosnou-rusentitweet-results
+          path: rosnou_sentiment
+          if-no-files-found: error
+          retention-days: 7
